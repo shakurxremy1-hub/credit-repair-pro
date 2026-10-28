@@ -1,0 +1,19 @@
+{
+  "name": "credit-repair-pro",
+  "version": "0.1.0",
+  "description": "Automates a credit repair business's client workflow: drafts FCRA/FDCPA-grounded dispute letters, renders them as professional PDFs, and sends bureau/creditor correspondence and client status emails.",
+  "author": {
+    "name": "nmdzaza"
+  },
+  "homepage": "https://github.com/nmdzaza/credit-repair-pro",
+  "repository": "https://github.com/nmdzaza/credit-repair-pro",
+  "license": "MIT",
+  "keywords": [
+    "credit-repair",
+    "dispute-letters",
+    "fcra",
+    "fdcpa",
+    "pdf-generation",
+    "email-automation"
+  ]
+}

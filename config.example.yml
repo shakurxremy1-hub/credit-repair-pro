@@ -1,0 +1,38 @@
+# Copy this file to config.yml and fill in real values.
+# config.yml is gitignored — never commit real SMTP credentials or client data.
+
+business:
+  name: "Your Credit Repair Business LLC"
+  contact_email: "you@yourbusiness.com"
+  phone: "(555) 555-5555"
+  address: "123 Main St, Suite 100, Your City, ST 00000"
+  # Optional path (relative to this file) to a PNG/JPG logo used in the PDF letterhead.
+  logo_path: ""
+  # State(s) the business is licensed/registered in, if applicable to CROA / state credit-services-organization law.
+  license_notice: ""
+
+smtp:
+  host: "smtp.gmail.com"
+  port: 587
+  username: "you@yourbusiness.com"
+  # For Gmail/Outlook, use an app password, not your account password.
+  password: "CHANGE_ME"
+  use_tls: true
+  from_name: "Your Credit Repair Business LLC"
+  from_email: "you@yourbusiness.com"
+
+# Most bureaus process disputes by mail, not email — email addresses below are
+# usually blank on purpose. See references/bureau-contacts.md before emailing a bureau directly.
+bureaus:
+  experian:
+    name: "Experian"
+    dispute_mailing_address: "Experian, P.O. Box 4500, Allen, TX 75013"
+    dispute_email: ""
+  equifax:
+    name: "Equifax Information Services LLC"
+    dispute_mailing_address: "Equifax Information Services LLC, P.O. Box 740256, Atlanta, GA 30374"
+    dispute_email: ""
+  transunion:
+    name: "TransUnion Consumer Solutions"
+    dispute_mailing_address: "TransUnion Consumer Solutions, P.O. Box 2000, Chester, PA 19016"
+    dispute_email: ""

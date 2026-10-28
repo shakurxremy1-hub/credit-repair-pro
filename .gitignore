@@ -1,0 +1,9 @@
+.claude-flow/
+config.yml
+clients/
+outputs/
+*.pdf
+__pycache__/
+*.pyc
+.venv/
+.DS_Store

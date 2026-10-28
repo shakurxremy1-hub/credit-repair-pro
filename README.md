@@ -48,34 +48,37 @@ When a client's dispute round is complete, Claude automatically sends them a **p
 
 ## Installation
 
+This is a [Claude Code](https://claude.com/claude-code) plugin — it runs locally through
+the Claude Code CLI, not through claude.ai's web Integrations panel.
+
 ### Requirements
-- A Claude account (claude.ai)
-- Access to Claude plugin/integration settings
-- SMTP email credentials (Gmail, Outlook, or custom business email) for sending automated emails
+- [Claude Code](https://claude.com/claude-code) installed
+- Python 3.9+ with `pip install -r skills/dispute-letter-generator/scripts/requirements.txt -r skills/client-communications/scripts/requirements.txt`
+  (or a venv — recommended)
+- SMTP email credentials (Gmail/Outlook app password, or custom business email) for
+  sending automated emails
 
 ### Steps to Install
 
-1. **Download this plugin**
-   - Click the green **Code** button at the top of this page
-   - Select **Download ZIP**
-   - Unzip the folder on your computer
-
-2. **Open Claude**
-   - Go to [claude.ai](https://claude.ai) and log in to your account
-
-3. **Add the Plugin**
-   - Navigate to **Settings > Integrations** (or the Plugins panel)
-   - Click **"Add Plugin"** or **"Upload Plugin"**
-   - Select the unzipped `credit-repair-pro` folder or the plugin config file
-
-4. **Configure Your Business Settings**
-   - Open `config.json` inside the plugin folder
-   - Add your business name, email address, and SMTP credentials
-   - Optionally add your logo for branded PDFs
-
-5. **Enable the Plugin**
-   - Toggle the plugin **ON** in your Claude settings
-   - credit-repair-pro is now active and ready to use with your clients
+1. **Clone this repo** (or add it as a plugin source):
+   ```
+   git clone https://github.com/nmdzaza/credit-repair-pro.git
+   ```
+2. **Install it as a local plugin** — from within Claude Code:
+   ```
+   /plugin marketplace add /path/to/credit-repair-pro
+   /plugin install credit-repair-pro
+   ```
+   (or run Claude Code with `--plugin-dir /path/to/credit-repair-pro` while developing)
+3. **Configure your business settings**
+   - Copy `config.example.yml` to `config.yml` at the repo root
+   - Fill in your business name/address, SMTP credentials, and (optionally) a logo path
+   - `config.yml` is gitignored — it holds real credentials and must never be committed
+4. **Install the Python dependencies** listed above into whatever Python environment
+   Claude Code will invoke the skill scripts with.
+5. **Use it** — once enabled, Claude Code loads `dispute-letter-generator` and
+   `client-communications` automatically when a matching request comes in (see
+   **How to Use** below).
 
 ---
 
@@ -105,11 +108,11 @@ Claude creates bureau-specific dispute letters for each error, formatted profess
 
 ---
 
-### Step 4 — Send Dispute Emails to Bureaus & Creditors
+### Step 4 — Mail the Bureau Copy, Email the Rest
 ```
 "Send the dispute letters to the appropriate credit bureaus and creditors"
 ```
-Claude emails the PDFs to Experian, Equifax, TransUnion, and any creditors involved — using your business email as the sender. Each email is logged for your records.
+Bureaus process disputes by mail (ideally certified, for a timestamped FCRA §611 clock), not email — none of the three publish a general dispute inbox. Claude prepares the bureau PDFs for you to print and mail, and emails anything that *does* go by email: creditor/collector correspondence that accepts it, and the client's own copy — using your business email as the sender.
 
 ---
 
@@ -156,7 +159,7 @@ Claude creates a tailored plan covering secured cards, credit-builder loans, uti
 | Add a new client | "Add client: Jane Doe, jane@email.com" |
 | Analyze credit report | "Analyze this credit report and find all disputable items" |
 | Generate all dispute PDFs | "Draft dispute letters for all errors and export as PDFs" |
-| Email bureaus | "Send dispute letters to all three credit bureaus" |
+| Prep bureau mailings | "Generate dispute PDFs for all three credit bureaus" |
 | Email creditor | "Send a pay-for-delete letter to Capital One for Jane" |
 | Notify client | "Send Jane a completion email with the dispute summary" |
 | Follow up | "Send follow-up letters for any disputes older than 30 days" |
@@ -166,26 +169,64 @@ Claude creates a tailored plan covering secured cards, credit-builder loans, uti
 
 ## Email & PDF Configuration
 
-In the `config.json` file inside the plugin folder, you can customize:
+Copy `config.example.yml` to `config.yml` at the repo root and fill it in — business
+letterhead info, SMTP credentials, and the (usually blank, by design) bureau
+dispute-email fields. `config.yml` is gitignored; never commit it.
 
-```json
-{
-  "business_name": "Your Credit Repair Business",
-  "business_email": "you@yourbusiness.com",
-  "smtp_host": "smtp.gmail.com",
-  "smtp_port": 587,
-  "smtp_user": "you@yourbusiness.com",
-  "smtp_password": "your_app_password",
-  "pdf_logo": "assets/logo.png",
-  "pdf_footer": "Your Business Name | yourbusiness.com | (555) 000-0000"
-}
+```yaml
+business:
+  name: "Your Credit Repair Business LLC"
+  contact_email: "you@yourbusiness.com"
+  phone: "(555) 555-5555"
+  address: "123 Main St, Suite 100, Your City, ST 00000"
+  logo_path: ""
+
+smtp:
+  host: "smtp.gmail.com"
+  port: 587
+  username: "you@yourbusiness.com"
+  password: "your_app_password"
+  use_tls: true
+  from_name: "Your Credit Repair Business LLC"
+  from_email: "you@yourbusiness.com"
 ```
+
+See `skills/dispute-letter-generator/SKILL.md` and
+`skills/client-communications/SKILL.md` for how each piece gets used.
 
 ---
 
 ## Disclaimer
 
-credit-repair-pro is an informational and automation tool for business use. It is **not** a substitute for professional legal advice. All dispute letters are based on publicly available consumer protection laws (FCRA, FDCPA). Business owners are responsible for reviewing all documents before sending. Results may vary per client.
+credit-repair-pro is an informational and automation tool for business use. It is **not**
+a substitute for professional legal advice. All dispute letters are based on publicly
+available consumer protection laws (FCRA, FDCPA) — see
+`skills/dispute-letter-generator/references/legal-citations.md` for the specific
+citations used and what the tool refuses to generate (disputes against confirmed-accurate
+information, synthetic-identity/CPN schemes, guaranteed-outcome language). Credit-repair
+businesses are generally subject to the federal Credit Repair Organizations Act (CROA)
+and often a stricter state-level credit-services-organization law — business owners are
+responsible for their own CROA/state compliance, reviewing every document before it goes
+out, and their own licensing/bonding requirements. Results may vary per client.
+
+---
+
+## Project Structure
+
+```
+credit-repair-pro/
+├── .claude-plugin/plugin.json          # Plugin manifest
+├── config.example.yml                  # Copy to config.yml (gitignored) and fill in
+├── skills/
+│   ├── dispute-letter-generator/       # Draft letters, render to PDF
+│   │   ├── SKILL.md
+│   │   ├── scripts/generate_pdf.py
+│   │   └── references/                # bureau-contacts, legal-citations, letter-playbook
+│   └── client-communications/          # Send email (dry-run first, always)
+│       ├── SKILL.md
+│       ├── scripts/send_email.py
+│       └── references/email-templates.md
+```
 
 ---
 
